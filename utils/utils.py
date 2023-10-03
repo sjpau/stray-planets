@@ -1,5 +1,15 @@
 import pygame    
 import moderngl
+import os
+
+def collect_image_paths(directory_path):
+    image_paths = []
+    for _, _, files in os.walk(directory_path):
+        for filename in files:
+            image_paths.append(os.path.join(directory_path, filename))
+
+    return image_paths
+
     
 def circle_surface(radius, color):
     if radius > 0:

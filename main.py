@@ -3,6 +3,10 @@ import sys
 import debug
 import moderngl
 import defs.finals as finals
+if __name__ == "__main__":
+    pygame.init()
+    pygame.display.set_mode(finals.display_resolution['1280x720'], pygame.OPENGL | pygame.DOUBLEBUF)
+    pygame.display.set_caption(finals.CAPTION)
 from array import array
 from defs.lvl import get_states
 from loader.loader import glsl_to_string
@@ -68,16 +72,12 @@ class Game(object):
             frame_tex.release()
 
 def main() -> None:
-    pygame.init()
-    pygame.display.set_mode(finals.display_resolution['1280x720'], pygame.OPENGL | pygame.DOUBLEBUF)
-    pygame.display.set_caption(finals.CAPTION)
-
     context = moderngl.create_context()
 
     quad_buffer = context.buffer(data=array('f', 
     [
         -1.0, 1.0, 0.0, 0.0,  # toplfet
-        1.0, 1.0, 1.0, 0.0,    # topright
+        1.0, 1.0, 1.0, 0.0,   # topright
         -1.0, -1.0, 0.0, 1.0, # bottomleft
         1.0, -1.0, 1.0, 1.0,  # bottomright
     ]
