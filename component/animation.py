@@ -2,29 +2,30 @@ import pygame
 from defs.finals import SpriteIndex
 
 class Animation:
-    def __init__(self, entity, sprites: dict[pygame.Surface: [pygame.Mask, pygame.Mask]], frame_duration: float):
-        self.entity = entity
+    def __init__(self, sprites: dict[pygame.Surface: [pygame.Mask, pygame.Mask]], frame_duration: float):
         self.sprites = sprites
         self.frame_duration = frame_duration
         self.flip = False
         self.frame_index = 0
         self.timer = 0
+        self.current_image, attrs = list(self.sprites.items())[self.frame_index]
+        self.current_mask = attrs[SpriteIndex.MASK.value]
 
     def play(self, dt):
         self.timer += dt
-        while self.timer >= self.frame_duration:
+        if self.timer >= self.frame_duration:
             self.timer -= self.frame_duration
             image, attributes = list(self.sprites.items())[self.frame_index]
             self.frame_index = (self.frame_index + 1) % len(self.sprites)
             if self.flip:
-                self.entity.image = pygame.transform.flip(image, True, False)
-                self.entity.mask = attributes[SpriteIndex.MASK_FLIPPED.value]
+                self.current_mask = attributes[SpriteIndex.MASK_FLIPPED.value]
             else:
-                self.entity.image = image
-                self.entity.mask = attributes[SpriteIndex.MASK.value]
+                self.current_mask = attributes[SpriteIndex.MASK.value]
+            self.current_image = image
 
 class AnimationHandler:
-    def __init__(self, animations: dict[str: Animation]):
+    def __init__(self, entity, animations: dict[str: Animation]):
+        self.entity = entity
         self.animations = animations
         self._current = None
         self.play = True
@@ -44,3 +45,8 @@ class AnimationHandler:
     def update(self, dt):
         if self.play:
             self.current.play(dt)
+            if self.current.flip:
+                self.entity.image = pygame.transform.flip(self.current.current_image, True, False)
+            else:
+                self.entity.image = self.current.current_image
+            self.entity.mask = self.current.current_mask

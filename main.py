@@ -3,10 +3,12 @@ import sys
 import debug
 import moderngl
 import defs.finals as finals
+
 if __name__ == "__main__":
     pygame.init()
     pygame.display.set_mode(finals.display_resolution['1280x720'], pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption(finals.CAPTION)
+
 from array import array
 from defs.lvl import get_states
 from loader.loader import glsl_to_string
@@ -23,6 +25,10 @@ class Game(object):
         self.state = state
         self.desired_next_state = self.state.desired_next_state
         self.surface = pygame.display.get_surface()
+        self.time_factor = 1.0
+        self.time_accumulator = 0.0
+        self.time_update_interval = self.time_factor / self.fps
+        self.dt = 0.0
 
     def event_loop(self):
         for event in pygame.event.get():
@@ -59,9 +65,12 @@ class Game(object):
 
     def run(self):
         while not self.done:
-            dt = self.clock.tick(self.fps)
+            self.dt = self.clock.tick(self.fps)
             self.event_loop()
-            self.update(dt)
+            self.time_accumulator += self.dt / 1000.0 
+            if self.time_accumulator >= self.time_update_interval:
+                self.update(self.dt)
+                self.time_accumulator -= self.time_update_interval
             surf = self.draw()
             frame_tex = surface_to_gl_texture(surf, self.gl_context)
             frame_tex.use(0)
@@ -70,6 +79,7 @@ class Game(object):
 
             pygame.display.flip()
             frame_tex.release()
+            
 
 def main() -> None:
     context = moderngl.create_context()
@@ -89,7 +99,9 @@ def main() -> None:
     render_obj = context.vertex_array(program, [(quad_buffer, '2f 2f', 'vert', 'textcoord')])
     states = get_states()
 
-    app = Game(program, context, render_obj, states['blank']) 
+    state = states['blank']
+    state.preload()
+    app = Game(program, context, render_obj, state) 
     app.run()
 
     pygame.quit()

@@ -41,3 +41,6 @@ def surface_to_gl_texture(surf: pygame.Surface, ctx: moderngl.Context):
     tex.swizzle = 'BGRA'
     tex.write(surf.get_view('1'))
     return tex
+
+def image_to_sprite_dict(surf: pygame.Surface) -> dict[pygame.Surface: [pygame.Mask, pygame.Mask]]:
+    return { surf: [pygame.mask.from_surface(surf), pygame.mask.from_surface(pygame.transform.flip(surf, True, False))] }

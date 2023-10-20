@@ -22,5 +22,5 @@ COLOR_BLACK: Final = pygame.Color((16, 13, 19))
 COLOR_WHITE: Final = pygame.Color((255, 255, 255))
 
 class SpriteIndex(Enum):
-    MASK = 0
-    MASK_FLIPPED = 1
+    MASK            = 0
+    MASK_FLIPPED    = 1
