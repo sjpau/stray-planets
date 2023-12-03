@@ -16,7 +16,7 @@ from loader.assets import sprites_background_layers
 from utils.utils import bool_dict_set_true
 from entity.background import BackgroundLayer
 from entity.shadow import ShadowSprite
-from entity.particles import ParticleSpark, ParticleDust
+from entity.particles import ParticleSpark, ParticleAnimated
 
 class StateBlank(State):
     def __init__(self, tmx_maps, map_key, *args, **kwargs):
@@ -54,7 +54,8 @@ class StateBlank(State):
                                  self.sg_clouds, self.sg_walls_enemy,
                                  self.sg_tiles_spikes, self.sg_spikes,
                                  self.sg_pickups, self.sg_text_objects,
-                                 self.sg_walls,
+                                 self.sg_walls, self.sg_dust_bg,
+                                 self.sg_dust_fg,
                                  ]
         self.tmx_tile_layers_to_sg = {
             'colliders': self.sg_tiles_colliders,
@@ -183,14 +184,12 @@ class StateBlank(State):
         if random.random() < 0.01:
             surf =  pygame.Surface((4,4))
             surf.set_colorkey((0,0,0))
-            self.particles_dust.append(ParticleDust(sprites_env_dust['dust'].sprites, self.sg_dust_bg, dust_pos)) if random.random() < 0.5 else self.particles_dust.append(ParticleDust(sprites_env_dust['dust'].sprites, self.sg_dust_fg, dust_pos))
+            self.particles_dust.append(ParticleAnimated(sprites_env_dust['dust'].sprites, self.sg_dust_bg, dust_pos)) if random.random() < 0.5 else self.particles_dust.append(ParticleAnimated(sprites_env_dust['dust'].sprites, self.sg_dust_fg, dust_pos))
         for p in self.particles_dust:
             if p.kill:
                 self.particles_dust.remove(p)
                 p.group.remove(p)
         
-        '''
-    
         if self.desired_next_state != '':
             self.transition_start = True
         if self.transition_start:
@@ -199,39 +198,38 @@ class StateBlank(State):
                 self.done = True
         if self.transition < 0:
             self.transition += 1
-        '''        
 
     def draw(self):
-            self.canvas.blit(self.background, (0,0))
-            for sprite in self.sg_background_layers.sprites():
-                self.canvas.blit(sprite.image, sprite.rect.topleft)
-            self.sg_clouds.render_all_parallax(self.canvas)
-            self.sg_dust_bg.render_all(self.canvas)
-            self.sg_decor_bg.render_all(self.canvas)
-            self.sg_tiles_non_colliders.render_all(self.canvas)
-            self.sg_tiles_colliders.render_all(self.canvas)
-            self.sg_spikes.render_all(self.canvas)
-            self.sg_tiles_spikes.render_all(self.canvas)
-            self.sg_shadow_sprites.render_all(self.canvas)
-            self.sg_camera.render_all(self.canvas)
-            self.sg_decor_fg.render_all(self.canvas)
-            self.sg_dust_fg.render_all(self.canvas)
-            self.sg_limits.render_all(self.canvas)
-            self.sg_enemies.render_all(self.canvas)
-            self.sg_attack_hitboxes.render_all(self.canvas)
-            self.sg_walls_enemy.render_all(self.canvas)
-            self.sg_spikes.render_all(self.canvas)
-            self.sg_pickups.render_all(self.canvas)
-            self.sg_text_objects.render_all(self.canvas)
-            for obj in self.sg_text_objects:
-                obj.font.render(obj.image, obj.text, (obj.image.get_width()/2, obj.image.get_height()/2), center=True)
-            for spark in self.particles_sparks:
-                spark.draw(self.canvas, self.sg_camera)
-            '''
-            if self.transition:
-                t_surf = pygame.Surface(self.canvas.get_size())
-                pygame.draw.circle(t_surf, finals.COLOR_WHITE, (finals.CANVAS_WIDTH//2, finals.CANVAS_HEIGHT//2), (30 - abs(self.transition)) * 8)
-                t_surf.set_colorkey(finals.COLOR_WHITE)
-                self.canvas.blit(t_surf, (0, 0))
-            '''
-            return self.canvas
+        self.canvas.blit(self.background, (0,0))
+        for sprite in self.sg_background_layers.sprites():
+            self.canvas.blit(sprite.image, sprite.rect.topleft)
+        self.sg_clouds.render_all_parallax(self.canvas)
+        self.sg_dust_bg.render_all(self.canvas)
+        self.sg_decor_bg.render_all(self.canvas)
+        self.sg_tiles_non_colliders.render_all(self.canvas)
+        self.sg_tiles_colliders.render_all(self.canvas)
+        self.sg_spikes.render_all(self.canvas)
+        self.sg_tiles_spikes.render_all(self.canvas)
+        self.sg_shadow_sprites.render_all(self.canvas)
+        self.sg_camera.render_all(self.canvas)
+        self.sg_decor_fg.render_all(self.canvas)
+        self.sg_dust_fg.render_all(self.canvas)
+        self.sg_limits.render_all(self.canvas)
+        self.sg_enemies.render_all(self.canvas)
+        self.sg_attack_hitboxes.render_all(self.canvas)
+        self.sg_walls_enemy.render_all(self.canvas)
+        self.sg_spikes.render_all(self.canvas)
+        self.sg_pickups.render_all(self.canvas)
+        self.sg_text_objects.render_all(self.canvas)
+        for obj in self.sg_text_objects:
+            obj.font.render(obj.image, obj.text, (obj.image.get_width()/2, obj.image.get_height()/2), center=True)
+        for spark in self.particles_sparks:
+            spark.draw(self.canvas, self.sg_camera)
+
+        if self.transition:
+            t_surf = pygame.Surface(self.canvas.get_size())
+            pygame.draw.circle(t_surf, finals.COLOR_WHITE, (finals.CANVAS_WIDTH//2, finals.CANVAS_HEIGHT//2), (30 - abs(self.transition)) * 8)
+            t_surf.set_colorkey(finals.COLOR_WHITE)
+            self.canvas.blit(t_surf, (0, 0))
+
+        return self.canvas

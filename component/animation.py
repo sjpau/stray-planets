@@ -2,7 +2,7 @@ import pygame
 from defs.finals import SpriteIndex
 
 class Animation:
-    def __init__(self, sprites: dict[pygame.Surface: [pygame.Mask, pygame.Mask]], frame_duration: float):
+    def __init__(self, sprites: dict[pygame.Surface: [pygame.Mask, pygame.Mask]], frame_duration: float, loop=True):
         self.sprites = sprites
         self.frame_duration = frame_duration
         self.flip = False
@@ -10,6 +10,7 @@ class Animation:
         self.timer = 0
         self.current_image, attrs = list(self.sprites.items())[self.frame_index]
         self.current_mask = attrs[SpriteIndex.MASK.value]
+        self.loop = loop
 
     def play(self, dt):
         self.timer += dt
@@ -29,10 +30,15 @@ class AnimationHandler:
         self.animations = animations
         self._current = None
         self.play = True
+        self.exit = False
 
     @property
     def current(self):
         return self._current
+    
+    @property 
+    def on_last_sprite(self):
+        return True if self.current.frame_index == len(self.current.sprites) - 1 else False
 
     @current.setter
     def current(self, name):
@@ -41,9 +47,15 @@ class AnimationHandler:
                 self._current = self.animations[name]
                 self._current.timer = 0
                 self._current.frame_index = 0
+                self.play = True
 
     def update(self, dt):
         if self.play:
+            if self.exit:
+                self.play = False
+            if self.on_last_sprite:
+                if not self.current.loop:
+                    self.exit = True
             self.current.play(dt)
             if self.current.flip:
                 self.entity.image = pygame.transform.flip(self.current.current_image, True, False)

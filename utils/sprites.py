@@ -3,7 +3,7 @@ from copy import deepcopy
 from loader.loader import load_sprites
 
 class SpriteStack:
-    def __init__(self, path):
+    def __init__(self, path, palette={}):
         self.images = load_sprites(path)
         self.sprites = {}
 
@@ -12,6 +12,7 @@ class SpriteStack:
                 pygame.mask.from_surface(img),
                 pygame.mask.from_surface(pygame.transform.flip(img, True, False)),
             ]
-    
+        self.palette = palette
+
     def copy(self):
         return deepcopy(self.sprites)

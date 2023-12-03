@@ -36,6 +36,7 @@ class Entity(pygame.sprite.Sprite):
             "up": 1.5,
             "down": 0.5,
         }
+
     def entity_movement_collision_horizontal(self, collide_groups):
         self.body.movement_horizontal() # Entity must have Body component for collision
         for group in collide_groups:

@@ -7,7 +7,7 @@ from loader.assets import sprites_env_dust
 from utils.utils import circle_surface
 import random
 
-class ParticleDust(Entity): # TODO fix implementation
+class ParticleAnimated(Entity): # TODO fix implementation
     def __init__(self, *args, **kwargs):
         Entity.__init__(self, args[0], args[1], args[2])
         self.kill = False
@@ -15,7 +15,7 @@ class ParticleDust(Entity): # TODO fix implementation
         self.body = Body(self.rect)
         self.animation_handler = AnimationHandler(self,
             {
-            'dust': Animation(sprites_env_dust['dust'].sprites, 500)
+            'dust': Animation(sprites_env_dust['dust'].sprites, 500, loop=False)
             }
         )
         self.ttl = 500
@@ -24,17 +24,17 @@ class ParticleDust(Entity): # TODO fix implementation
         self.sign_y = 1 if random.random() < 0.5 else -1
     
     def update(self, dt):
-        self.set_animation('dust')
-        self.graphics_update_animation(dt)
+        self.animation_handler.current = 'dust'
+        self.animation_handler.update(dt)
         self.sin_counter += 1
         self.ttl_counter += 1
         if self.sin_counter == 100:
             self.sin_counter = -100
-        self.velocity.x = self.sign_x * sin(self.sin_counter * 0.035) * 0.3
-        self.velocity.y = self.sign_y * 0.3
-        self.movement_horizontal()
-        self.movement_vertical()
-        if not self.playing_busy and self.ttl_counter > self.ttl:
+        self.body.velocity.x = self.sign_x * sin(self.sin_counter * 0.035) * 0.3
+        self.body.velocity.y = self.sign_y * 0.3
+        self.body.movement_horizontal()
+        self.body.movement_vertical()
+        if not self.animation_handler.play and self.ttl_counter > self.ttl:
             self.kill = True
 
 class ParticleBlob:
